@@ -25,7 +25,7 @@ printf "\rProgress : [${_fill// /#}${_empty// /-}] ${_progress}%%"
 
 rm -f cookie.file
 rm -f img-pages.txt
-rm -f HQ-image-links.txt
+rm -f HQ-img-links.txt
 rm -f lynx.cfg
 
 #Prompts user for login to TS Premium
@@ -97,10 +97,10 @@ do
 
   ProgressBar ${COUNT} ${TOTAL_IMAGES}
   COUNT=`expr $COUNT + 1`
-  
+
 done < HQ-img-links.txt
 
 rm -f cookie.file
-rm -f HQ-image-links.txt
+rm -f HQ-img-links.txt
 rm -f img-pages.txt
 rm -f lynx.cfg
