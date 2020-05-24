@@ -57,8 +57,8 @@ done
 TOTAL_IMAGES=`wc -l < img-pages.txt`
 
 printf "\n$TOTAL_IMAGES paintings to be downloaded.\n"
-
 # Gets the links to the desired images and names of images.
+printf "\nDownloading links to images.\n"
 COUNT=1
 while read LINE
 do
@@ -88,6 +88,7 @@ done < img-pages.txt
 rm -f PAGE
 
 # Downloading the actual images.
+printf "\nDownloading images.\n"
 COUNT=1
 while IFS=';' read -r LINK NAME
 do
