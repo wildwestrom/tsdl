@@ -84,6 +84,7 @@ do
 
    ProgressBar ${COUNT} ${TOTAL_IMAGES}
    COUNT=`expr $COUNT + 1`
+
 done < img-pages.txt
 rm -f PAGE
 
@@ -96,6 +97,7 @@ do
 
   ProgressBar ${COUNT} ${TOTAL_IMAGES}
   COUNT=`expr $COUNT + 1`
+  
 done < HQ-img-links.txt
 
 rm -f cookie.file
