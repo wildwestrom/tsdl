@@ -16,12 +16,12 @@ printf "\rProgress : [${_fill// /#}${_empty// /-}] ${_progress}%%"
 
 }
 
-echo -n "Checking dependencies... "
-for name in lynx curl wget grep awk sed
-do
-  [[ $(command -v $name >/dev/null 2>&1) ]] || { echo -en "\nDependency Missing: $name needs to be installed. $name'";deps=1; }
-done
-[[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall the above and rerun this script\n";exit 1; }
+# echo -n "Checking dependencies... "
+# for name in lynx curl wget grep awk sed
+# do
+#   [[ $(command -v $name >/dev/null 2>&1) ]] || { echo -en "\nDependency Missing: $name needs to be installed. $name'";deps=1; }
+# done
+# [[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall the above and rerun this script\n";exit 1; }
 
 rm -f cookie.file
 rm -f img-pages.txt
@@ -91,7 +91,7 @@ rm -f PAGE
 COUNT=1
 while IFS=';' read -r LINK NAME
 do
-  wget -O "$NAME.jpg" "$LINK" -q
+  wget -nc -O "$NAME.jpg" "$LINK" -q
 
   ProgressBar ${COUNT} ${TOTAL_IMAGES}
   COUNT=`expr $COUNT + 1`
