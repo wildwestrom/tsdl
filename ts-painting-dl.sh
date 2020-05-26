@@ -13,9 +13,9 @@ function ProgressBar {
 # 1.2.1 Output example:
 # 1.2.1.1 Progress : [########################################] 100%
 printf "\rProgress : [${_fill// /#}${_empty// /-}] ${_progress}%%"
-
 }
 
+#Check for dependencies.
 printf "Checking dependencies... "
 for name in lynx curl wget awk sed
 do
