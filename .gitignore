@@ -1,4 +1,5 @@
-resources/cache.edn
+/resources/cache.edn
 /.cpcache/
 /.lsp/
 /.nrepl-port
+/ui-workspace/

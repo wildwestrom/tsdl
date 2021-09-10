@@ -1,13 +1,16 @@
 (ns tsdl.core
   (:require [clj-http.client :as http]
             [clj-http.cookies :as cookies]
-            [clj-http.util :as util]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [hickory.core :as hic]
             [hickory.select :as s]
-            [lambdaisland.uri :as uri :refer [uri]]))
+            [lambdaisland.uri :as uri :refer [uri]]
+            [tsdl.ui.login-dialog :refer [open-dialog]])
+  (:import (java.io File)))
+
+(set! *warn-on-reflection* true)
 
 (def global-cookie-store (cookies/cookie-store))
 
@@ -43,30 +46,41 @@
       :attrs
       :value))
 
-(def csrf-key (get-csrf-key login-uri))
+(defn csrf-key
+  []
+  (get-csrf-key login-uri))
 
 (defonce logged-in? (atom false))
-(defonce cache (atom (edn/read-string (slurp "resources/cache.edn"))))
+
+(defn load-cache [f]
+  (edn/read-string (slurp f)))
+
+(def cache-file (io/file "resources/cache.txt"))
+
+(defonce cache
+  (atom
+   (if (.exists ^File cache-file)
+     (load-cache cache-file)
+     nil)))
 
 (defn log-in
   [{:keys [username password]}]
   (if-not @logged-in?
     (let [res (when-not @logged-in?
-                              (http/post (str login-uri)
-                                         {:cookie-store global-cookie-store
-                                          :form-params {:csrfKey csrf-key
-                                                        :auth username
-                                                        :password password
-                                                        :remember_me "1"
-                                                        :_processLogin "usernamepassword"}
-                                          :throw-exceptions false}))]
-                    (condp = (:status res)
-                      301 (do (println "Success!")
-                              (reset! logged-in? true))
-                      :else (println "Something weird happened.")))
-      (println "Already logged in.")))
-
-(log-in @cache)
+                (http/post (str login-uri)
+                           {:cookie-store global-cookie-store
+                            :form-params {:csrfKey (csrf-key)
+                                          :auth username
+                                          :password password
+                                          :remember_me "1"
+                                          :_processLogin "usernamepassword"}
+                            :throw-exceptions false}))]
+      (condp = (:status res)
+        301 (do (println "Success!")
+                (spit cache-file @cache)
+                (reset! logged-in? true))
+        :else (println "Something weird happened.")))
+    (println "Already logged in.")))
 
 (defn painting-title
   [hickory-data]
@@ -106,33 +120,37 @@
      :description (painting-desc hic)
      :link (download-link hic)}))
 
-(def all-painting-data
-  (let [num-of-pages
-        (->> (s/select (s/class "ipsPagination_pageJump")
-                       (get-hickory-data paintings-uri))
-             first
-             (s/select (s/tag :a))
-             first
-             :content
-             first
-             (re-find #"Page \d of (\d+)")
-             last
-             Integer/parseInt)
-        painting-links
-        (fn [uri]
-          (map #(-> (s/select (s/descendant
-                               (s/tag :h2)
-                               (s/tag :a)) %)
-                    first
-                    :attrs
-                    :href)
-               (s/select (s/id "painting-list-item")
-                         (get-hickory-data uri))))
-        all-painting-links
-        (apply concat
-               (for [page-num (map inc (range num-of-pages))]
-                 (painting-links (assoc paintings-uri
-                                        :path (str "/page/" page-num)))))]
-    (map painting-data all-painting-links)))
+(defn num-of-pages []
+  (->> (s/select (s/class "ipsPagination_pageJump")
+                 (get-hickory-data paintings-uri))
+       first
+       (s/select (s/tag :a))
+       first
+       :content
+       first
+       (re-find #"Page \d of (\d+)")
+       last
+       Integer/parseInt))
 
-#_(map :description all-painting-data)
+(defn painting-links [uri]
+  (map #(-> (s/select (s/descendant
+                       (s/tag :h2)
+                       (s/tag :a)) %)
+            first
+            :attrs
+            :href)
+       (s/select (s/id "painting-list-item")
+                 (get-hickory-data uri))))
+
+(defn all-painting-links []
+  (apply concat
+         (for [page-num (map inc (range (num-of-pages)))]
+           (painting-links (assoc paintings-uri
+                                  :path (str "/page/" page-num))))))
+
+(defn all-painting-data
+  []
+  (map painting-data (all-painting-links)))
+
+(defn -main [& args]
+  "")
