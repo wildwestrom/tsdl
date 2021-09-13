@@ -2,12 +2,11 @@
 
  :deps {clj-http/clj-http {:mvn/version "3.12.3"}
         hickory/hickory   {:mvn/version "0.7.1"}
-        lambdaisland/uri {:mvn/version "1.4.70"}
-        org.clojure/tools.cli {:mvn/version "1.0.206"}
-        seesaw/seesaw {:mvn/version "1.5.0"}
-        cljfx/cljfx {:mvn/version "1.7.14"}}
+        lambdaisland/uri {:mvn/version "1.4.74"}
+        org.apache.commons/commons-imaging {:git/url "http://gitbox.apache.org/repos/asf/commons-imaging.git"
+                                            :git/sha "b6b4e9c739ffc22fa0cdad3d54dd203682a47960"}}
 
- :aliases {:uberjar {:extra-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
+ :aliases {:uberjar {:extra-deps {com.github.seancorfield/depstar {:mvn/version "2.1.297"}}
                      :ns-default hf.depstar
                      :exec-fn    uberjar
                      :exec-args  {:jar         "target/tsdl.jar"
@@ -17,5 +16,5 @@
                                   :version     "0.0.1"
                                   :main-class  tsdl.core
                                   :aot         true}}
-           :upgrade {:extra-deps {com.github.liquidz/antq {:mvn/version "0.16.3"}}
+           :upgrade {:extra-deps {com.github.liquidz/antq {:mvn/version "1.0.0"}}
                      :main-opts  ["-m" "antq.core" "--upgrade"]}}}
