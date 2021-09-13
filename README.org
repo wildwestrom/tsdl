@@ -1,7 +1,15 @@
 * Teal Swan Frequency Painting Downloader
-This program downloads paintings from Teal Swan's website.
+This program downloads all paintings from Teal Swan's website.
+
+This used to be 100 or so lines of POSIX shell, but I rewrote it in Clojure. This artist has some pretty cool paintings, but there's over 200 of them, and I didn't want to try clicking to download each one.
 
 https://tealswan.com/paintings/
+
+* TODO Figure out how to edit metadata on images.
+  I want to add the little description blurb to the description field of each image.
+
+* TODO Add a low-res download option
+  Even without a premium account, you can still get the low-res versions of the images.
 
 * TODO Add a GUI for easy login.
   I'm still deciding on what I should use for a GUI.\\
@@ -11,8 +19,6 @@ https://tealswan.com/paintings/
   - electron
   - neutralino
   - tauri
-* TODO Add a low-res download option
-  Even without a premium account, you can still get the low-res versions of the images.
 
 * License
   ~tsdl~ is free software, but in order to access Teal Swan's paintings, you need a premium membership.
