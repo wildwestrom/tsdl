@@ -3,13 +3,16 @@ This program downloads paintings from Teal Swan's website.
 
 https://tealswan.com/paintings/
 
-** To run:
-Download the latest release, `tsdl.jar`.
-
-Then run the following:
-#+begin_src shell
-java -jar tsdl.jar
-#+end_src
+* TODO Add a GUI for easy login.
+  I'm still deciding on what I should use for a GUI.\\
+  Currently looking at:
+  - cljfx
+  - seesaw
+  - electron
+  - neutralino
+  - tauri
+* TODO Add a low-res download option
+  Even without a premium account, you can still get the low-res versions of the images.
 
 * License
   ~tsdl~ is free software, but in order to access Teal Swan's paintings, you need a premium membership.
