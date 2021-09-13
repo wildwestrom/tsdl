@@ -7,7 +7,10 @@
             [hickory.core :as hic]
             [hickory.select :as s]
             [lambdaisland.uri :as uri :refer [uri]])
-  (:import (java.io File)))
+  (:import (java.io File)
+           #_(org.apache.commons.imaging Imaging)
+           #_(org.apache.commons.imaging.formats.jpeg.exif ExifRewriter)
+           #_(org.apache.commons.imaging.formats.tiff.write TiffOutputSet)))
 
 (set! *warn-on-reflection* true)
 
@@ -144,16 +147,12 @@
    (apply concat
           (pmap (fn [pagenum]
                   (painting-links
-                    (update paintings-uri :path #(str %1 "/page/" %2) pagenum)))
+                   (update paintings-uri :path #(str %1 "/page/" %2) pagenum)))
                 (map inc (range (num-of-pages)))))))
 
 (def all-painting-data
-  (delay
-   (log-in @cache)
-   (pmap painting-data (deref all-painting-links))))
-
-(def images-path
-  (File. "./images-path"))
+  (do (log-in @cache)
+      (pmap painting-data (deref all-painting-links))))
 
 (defn make-directory
   [^File path]
@@ -166,20 +165,30 @@
    (:body (http/get img-uri {:as :stream}))
    (io/file out-path)))
 
-(def jpeg-image
-  (io/file "./images-path/img.jpg"))
+(defn normalize-filename [title-in]
+  (-> title-in
+      (string/replace #"[\"‘’-]" "")
+      (string/replace #"\s+" "_")
+      (string/lower-case)))
 
 (defn download-painting
   [{:keys [link title description]}]
-  (let [path (File. (clojure.string/replace
-                     (str images-path "/" title
-                          (re-find #"\....$" link))
-                     #"\s" "-"))]
-    (make-directory images-path)
+  (let [extension (re-find #"\.[^.]+$" link)
+        images-path "./images-path"
+        path (File. (str images-path "/"
+                         (normalize-filename title) extension))]
+    (make-directory (File. images-path))
     (if-not (.exists path)
       (do (println (str "Downloading \"" title "\"."))
           (println link)
           (download-file link path))
       (println (str "Already downloaded \"" title "\".")))))
 
-#_(download-painting (first (deref all-painting-data)))
+(defn download-all-paintings []
+  (let [num-of-paintings (count all-painting-data)
+        download-progress (atom 0)]
+    (println (str num-of-paintings " paintings to download."))
+    (map #(do (download-painting %)
+              (swap! download-progress inc)
+              (println (str "Got " @download-progress "/" num-of-paintings)))
+         all-painting-data)))

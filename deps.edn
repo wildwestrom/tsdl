@@ -3,8 +3,7 @@
  :deps {clj-http/clj-http {:mvn/version "3.12.3"}
         hickory/hickory   {:mvn/version "0.7.1"}
         lambdaisland/uri {:mvn/version "1.4.74"}
-        org.apache.commons/commons-imaging {:git/url "http://gitbox.apache.org/repos/asf/commons-imaging.git"
-                                            :git/sha "b6b4e9c739ffc22fa0cdad3d54dd203682a47960"}}
+        org.apache.commons/commons-imaging {:mvn/version "1.0-alpha2"}}
 
  :aliases {:uberjar {:extra-deps {com.github.seancorfield/depstar {:mvn/version "2.1.297"}}
                      :ns-default hf.depstar
