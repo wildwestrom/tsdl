@@ -8,6 +8,11 @@ https://tealswan.com/paintings/
 * TODO Figure out how to edit metadata on images.
   I want to add the little description blurb to the description field of each image.
 
+  So far I've encountered 3 file extensions after scraping
+  - .jpg (vast majority)
+  - .jpeg
+  - .png
+
 * TODO Add a low-res download option
   Even without a premium account, you can still get the low-res versions of the images.
 
