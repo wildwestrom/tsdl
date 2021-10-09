@@ -1,0 +1,65 @@
+name: Example workflow
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  clojure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2
+          key: ${{ runner.os }}-clj-deps-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-clj-deps-${{ hashFiles('**/deps.edn') }}
+            ${{ runner.os }}-clj-deps-
+
+      - name: Prepare java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          cli: 'latest' # Clojure CLI based on tools.deps
+
+      - name: Execute clojure code on Linux and MacOS
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: clojure -X:uberjar
+        shell: bash
+
+      - name: Execute clojure code on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: clojure -X:uberjar
+        shell: powershell
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: true
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/tsdl.jar
+          asset_name: tsdl.jar
+          retention-days: 5
