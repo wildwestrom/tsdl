@@ -1,5 +1,4 @@
 (ns tsdl.downloader
-  (:gen-class)
   (:require [clj-http.client :as http]
             [clj-http.cookies :as cookies]
             [clojure.core.async :as async :refer [go]]
@@ -192,7 +191,7 @@
 
 (defn download-all-paintings []
   (go
-    (let [data (take 5 (deref all-painting-data))
+    (let [data (deref all-painting-data)
           num-of-paintings (count data)
           download-progress (atom 0)
           done? (atom false)]

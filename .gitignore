@@ -5,3 +5,8 @@
 /paintings/
 /.clj-kondo/
 /images-path/
+
+# Build stuff
+/pom.xml
+/target/
+/classes/

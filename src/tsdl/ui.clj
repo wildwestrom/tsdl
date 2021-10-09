@@ -1,5 +1,4 @@
 (ns tsdl.ui
-  (:gen-class)
   (:require [clojure.core.async :as async :refer [go-loop]]
             [com.brunobonacci.mulog :as mu]
             [seesaw.core :as s]
@@ -35,7 +34,7 @@
   (-> (s/frame
        :title "Progress"
        :minimum-size [640 :by 400]
-       :on-close :dispose
+       :on-close :exit
        :content (s/border-panel
                  :center (s/scrollable
                           (l/log-window :id :log-window
