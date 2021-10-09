@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  clojure:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,7 +52,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ steps.version.outputs.version }}
           draft: false
-          prerelease: true
+          prerelease: false
 
       - name: 'Upload Artifact'
         uses: actions/upload-release-asset@v1
