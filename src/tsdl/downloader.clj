@@ -1,16 +1,16 @@
 (ns tsdl.downloader
+  (:gen-class)
   (:require [clj-http.client :as http]
             [clj-http.cookies :as cookies]
+            [clojure.core.async :as async :refer [go]]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as string]
+            [com.brunobonacci.mulog :as mu]
             [hickory.core :as hic]
             [hickory.select :as s]
             [lambdaisland.uri :as uri :refer [uri]])
-  (:import (java.io File)
-           #_(org.apache.commons.imaging Imaging)
-           #_(org.apache.commons.imaging.formats.jpeg.exif ExifRewriter)
-           #_(org.apache.commons.imaging.formats.tiff.write TiffOutputSet)))
+  (:import java.io.File))
 
 (set! *warn-on-reflection* true)
 
@@ -27,7 +27,7 @@
 
 (defn get-body
   [uri]
-  (println (str "Fetching body of " uri))
+  (mu/log ::fetch-uri :uri uri)
   (-> uri
       str
       (http/get {:cookie-store global-cookie-store})
@@ -65,22 +65,29 @@
      (load-cache cache-file)
      nil)))
 
+(defn save-cache [creds]
+  (spit cache-file creds))
+
 (defn log-in
   [{:keys [username password]}]
-  (let [res (http/post (str login-uri)
-                       {:cookie-store     global-cookie-store
-                        :form-params      {:csrfKey       (csrf-key)
-                                           :auth          username
-                                           :password      password
-                                           :remember_me   "1"
-                                           :_processLogin "usernamepassword"}
-                        :throw-exceptions false})]
+  (let [res (http/post
+             (str login-uri)
+             {:cookie-store     global-cookie-store
+              :form-params      {:csrfKey       (csrf-key)
+                                 :auth          username
+                                 :password      password
+                                 :remember_me   "1"
+                                 :_processLogin "usernamepassword"}
+              :throw-exceptions false})]
     (condp = (:status res)
-      301 (do (println "Success!")
+      301 (do (mu/log ::log-in :result :successful)
+              (reset! logged-in? true)
+              (save-cache {:username username
+                           :password password}))
+      403 (do (mu/log ::log-in :result :inconclusive)
               (reset! logged-in? true))
-      403 (do (println "You're probably already logged-in.")
-              (reset! logged-in? true))
-      (println "I'm not sure what happened..."))))
+      (mu/log ::log-in :result :unsuccessful))
+    @logged-in?))
 
 (defn painting-title
   [hickory-data]
@@ -113,8 +120,7 @@
        :attrs
        :href))
 
-(defn painting-data
-  [uri]
+(defn painting-data [uri]
   (let [hic (get-hickory-data uri)]
     {:title       (painting-title hic)
      :description (painting-desc hic)
@@ -151,8 +157,8 @@
                 (map inc (range (num-of-pages)))))))
 
 (def all-painting-data
-  (do (log-in @cache)
-      (pmap painting-data (deref all-painting-links))))
+  (delay (do (log-in @cache)
+             (pmap painting-data (deref all-painting-links)))))
 
 (defn make-directory
   [^File path]
@@ -174,21 +180,29 @@
 (defn download-painting
   [{:keys [link title description]}]
   (let [extension (re-find #"\.[^.]+$" link)
-        images-path "./images-path"
+        ;; TODO Add a file chooser so that images can download wherever.
+        images-path "./paintings"
         path (File. (str images-path "/"
                          (normalize-filename title) extension))]
     (make-directory (File. images-path))
     (if-not (.exists path)
-      (do (println (str "Downloading \"" title "\"."))
-          (println link)
+      (do (mu/log ::download :link link :title title)
           (download-file link path))
-      (println (str "Already downloaded \"" title "\".")))))
+      (mu/log ::skip-download :link link :title title))))
 
 (defn download-all-paintings []
-  (let [num-of-paintings (count all-painting-data)
-        download-progress (atom 0)]
-    (println (str num-of-paintings " paintings to download."))
-    (map #(do (download-painting %)
-              (swap! download-progress inc)
-              (println (str "Got " @download-progress "/" num-of-paintings)))
-         all-painting-data)))
+  (go
+    (let [data (take 5 (deref all-painting-data))
+          num-of-paintings (count data)
+          download-progress (atom 0)
+          done? (atom false)]
+      (mu/log ::count-paintings :total num-of-paintings)
+      (run! #(do (download-painting %)
+                 (swap! download-progress inc)
+                 (mu/log ::progress :downloaded @download-progress :total num-of-paintings))
+            data)
+      (when (= @download-progress num-of-paintings)
+        (reset! done? true))
+      (mu/log ::finished-downloading :downloaded @download-progress :total num-of-paintings
+              :message "Downloads Complete! You may now close this window.")
+      done?)))

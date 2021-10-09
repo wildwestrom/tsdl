@@ -1,7 +1,9 @@
 (ns tsdl.core
-  (:require [tsdl.downloader :refer [download-all-paintings]))
+  (:require [tsdl.ui :as ui]))
 
-(set! *warn-on-reflection* true)
+(defn -main []
+  (case (ui/login-dialog)
+    :ok (ui/display-progress)
+    :cancel nil))
 
-(defn -main [& args]
-  (download-all-paintings))
+#_(-main)

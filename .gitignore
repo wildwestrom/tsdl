@@ -2,5 +2,6 @@
 /.cpcache/
 /.lsp/
 /.nrepl-port
-/ui-workspace/
+/paintings/
+/.clj-kondo/
 /images-path/
