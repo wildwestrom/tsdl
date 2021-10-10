@@ -1,26 +1,41 @@
 * Teal Swan Frequency Painting Downloader
-This program downloads all paintings from Teal Swan's website.
+  This program downloads all paintings from Teal Swan's website.
 
-This used to be 100 or so lines of POSIX shell, but I rewrote it in Clojure. This artist has some pretty cool paintings, but there's over 200 of them, and I didn't want to try clicking to download each one.
+  This used to be 100 or so lines of POSIX shell, but I rewrote it in Clojure. This artist has some pretty cool paintings, but there's over 200 of them, and I didn't want to try clicking to download each one.
 
 https://tealswan.com/paintings/
 
-* License
-  ~tsdl~ is free software, but in order to access Teal Swan's paintings, you need a premium membership.
+** How to use
+   Just download the latest =.jar= file from the [[https://github.com/wildwestrom/tsdl/releases][releases page]], then run it.
 
-  tsdl - Downloads Teal Swan's paintings from her website.\\
-  Copyright © 2021 Christian Westrom
+   It will ask you for your username and password for [[https://tealswan.com/][tealswan.com]].\\
+   You will need a premium account in order to download images in high quality.
 
-  This program is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation, either version 3 of the License, or (at your option) any later
-  version.
+   In the future I may create a low-res download option that doesn't require logging in.
 
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+** Building from source
+   Clone the source code, then with Clojure CLI tools build an uberjar.
 
-  You should have received a copy of the GNU General Public License along with
-  this program. If not, see <https://www.gnu.org/licenses/>.
+   #+begin_src shell
+     git clone https://github.com/wildwestrom/tsdl.git
+     cd tsdl/
+     clojure -X:uberjar
+   #+end_src
 
- [[https://www.gnu.org/graphics/gplv3-or-later.png]]
+** License
+   tsdl - Downloads Teal Swan's paintings from her website.\\
+   Copyright © 2021 Christian Westrom
+
+   This program is free software: you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free Software
+   Foundation, either version 3 of the License, or (at your option) any later
+   version.
+
+   This program is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+   FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along with
+   this program. If not, see <https://www.gnu.org/licenses/>.
+
+   [[https://www.gnu.org/graphics/gplv3-or-later.png]]
