@@ -34,32 +34,13 @@ jobs:
         with:
           cli: 'latest' # Clojure CLI based on tools.deps
 
-      - name: Execute clojure code on Linux and MacOS
+      - name: Build uberjar
         if: ${{ matrix.os != 'windows-latest' }}
         run: clojure -X:uberjar
         shell: bash
 
-      - name: Execute clojure code on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: clojure -X:uberjar
-        shell: powershell
-
       - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ steps.version.outputs.version }}
-          draft: false
-          prerelease: false
-
-      - name: 'Upload Artifact'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: target/tsdl.jar
-          asset_name: tsdl.jar
+          files: target/tsdl.jar
