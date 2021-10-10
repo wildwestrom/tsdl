@@ -6,6 +6,8 @@
 https://tealswan.com/paintings/
 
 ** How to use
+   This program requires Java 8 or higher in order to run.
+
    Just download the latest =.jar= file from the [[https://github.com/wildwestrom/tsdl/releases][releases page]], then run it.
 
    It will ask you for your username and password for [[https://tealswan.com/][tealswan.com]].\\
